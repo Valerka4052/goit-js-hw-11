@@ -39,7 +39,7 @@ function searchItems(event) {
       lightbox.refresh();
     });
   }).catch(console.log);
-};
+}
 
 function showMoreItems() {
   const rect = document
