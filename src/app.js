@@ -10,7 +10,7 @@ export async function fetchItems(searchItems, numOfPage) {
         image_type: "photo",
         orientation: "horisontal",
         safesearch: true,
-        per_page: 16,
+        per_page: 40,
         page: numOfPage,
       },
     };

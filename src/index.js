@@ -4,7 +4,8 @@ import Notiflix from 'notiflix';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import {fetchItems} from './app.js'
-  
+var debounce = require('lodash.debounce'); 
+console.log(debounce) 
 AOS.init();
 
 const lightbox = new SimpleLightbox('.gallery a')
@@ -16,14 +17,18 @@ let pageNumber = 1;
 let totalImages = null;
     
 submitButton.addEventListener('click', searchItems);
-window.addEventListener('scroll', showMoreItems);
+window.addEventListener('scroll', debounce(showMoreItems, 200))
 
 function searchItems(event) {
   event.preventDefault();
   reset();
+  if (searchValue.value === '') {
+    Notiflix.Notify.info('Enter text to search for');
+    return;
+  };
   pageNumber = 1;
   fetchItems(searchValue.value, pageNumber).then(data => {
-    totalImages=data.total;
+    totalImages = data.total;
     if (data.totalHits > 0) {
       Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
     };
@@ -39,24 +44,24 @@ function searchItems(event) {
       lightbox.refresh();
     });
   }).catch(console.log);
-}
+};
 
 function showMoreItems() {
-  const rect = document
-    .querySelector(".gallery").getBoundingClientRect();
-    if (rect.bottom < document.documentElement.clientHeight + 200) {
+  const rect = document.querySelector(".gallery").getBoundingClientRect();
+  const { height: cardHeight } = container.firstElementChild.getBoundingClientRect();
+  if (rect.bottom < document.documentElement.clientHeight + (cardHeight * 3)) {
     pageNumber += 1;
-      fetchItems(searchValue.value, pageNumber).then(data => data.hits)
-        .then(items => {
-          items.forEach(item => {
-            makeThumbs(item);
-            lightbox.refresh();
-            const loadedImages = container.childElementCount;
-            if (totalImages === loadedImages) {
-              Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
-            };
-          });
-        }).catch(console.log);
+    fetchItems(searchValue.value, pageNumber).then(data => data.hits)
+      .then(items => {
+        items.forEach(item => {
+          makeThumbs(item);
+          lightbox.refresh();
+          const loadedImages = container.childElementCount;
+          if (totalImages === loadedImages) {
+            Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
+          };
+        });
+      }).catch(console.log);
   };
 };
 
@@ -83,3 +88,4 @@ function makeThumbs(item) {
 function reset() {
   container.innerHTML = '';
 };
+
