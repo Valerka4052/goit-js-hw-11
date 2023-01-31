@@ -4,8 +4,8 @@ import Notiflix from 'notiflix';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import {fetchItems} from './app.js'
-var debounce = require('lodash.debounce'); 
-console.log(debounce) 
+const debounce = require('lodash.debounce'); 
+
 AOS.init();
 
 const lightbox = new SimpleLightbox('.gallery a')
@@ -17,7 +17,7 @@ let pageNumber = 1;
 let totalImages = null;
     
 submitButton.addEventListener('click', searchItems);
-window.addEventListener('scroll', debounce(showMoreItems, 200))
+window.addEventListener('scroll', debounce(showMoreItems, 200));
 
 function searchItems(event) {
   event.preventDefault();
@@ -49,6 +49,10 @@ function searchItems(event) {
 function showMoreItems() {
   const rect = document.querySelector(".gallery").getBoundingClientRect();
   const { height: cardHeight } = container.firstElementChild.getBoundingClientRect();
+  const loadedImages = container.childElementCount;
+  if (totalImages === loadedImages) {
+    return;
+  };
   if (rect.bottom < document.documentElement.clientHeight + (cardHeight * 3)) {
     pageNumber += 1;
     fetchItems(searchValue.value, pageNumber).then(data => data.hits)
